@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model annonces {
+  id               Int              @id @default(autoincrement())
+  titre            String           @db.VarChar(150)
+  description      String           @db.Text
+  prix             Decimal          @db.Decimal(10, 2)
+  ville            String           @db.VarChar(150)
+  code_postal      String?          @db.VarChar(10)
+  statut           annonces_statut? @default(ACTIVE)
+  vues             Int?             @default(0)
+  date_publication DateTime?        @default(now()) @db.Timestamp(0)
+  id_utilisateur   Int
+  id_voiture       Int
+
+  @@index([id_utilisateur], map: "fk_annonce_user")
+  @@index([id_voiture], map: "fk_annonce_voiture")
+}
+
+model conversations {
+  id            Int       @id @default(autoincrement())
+  id_annonce    Int
+  id_vendeur    Int
+  id_acheteur   Int
+  date_creation DateTime? @default(now()) @db.Timestamp(0)
+
+  @@unique([id_annonce, id_vendeur, id_acheteur], map: "unique_conv")
+  @@index([id_acheteur], map: "id_acheteur")
+  @@index([id_annonce], map: "id_annonce")
+  @@index([id_vendeur], map: "id_vendeur")
+}
+
+model messages {
+  id              Int       @id @default(autoincrement())
+  id_conversation Int
+  id_envoyeur     Int
+  contenu         String    @db.Text
+  lu              Boolean?  @default(false)
+  date_envoi      DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([id_conversation], map: "id_conversation")
+  @@index([id_envoyeur], map: "id_envoyeur")
+}
+
+model users {
+  id     Int         @id @default(autoincrement())
+  email  String      @unique(map: "email") @db.VarChar(150)
+  tel    String?     @unique(map: "tel") @db.VarChar(20)
+  mdp    String      @db.VarChar(255)
+  prenom String?     @db.VarChar(100)
+  nom    String?     @db.VarChar(100)
+  role   users_role?
+}
+
+model voitures {
+  id              Int                     @id @default(autoincrement())
+  marque          voitures_marque
+  modele          String                  @db.VarChar(100)
+  annee           Int                     @db.Year
+  kilometrage     Int
+  carburant       voitures_carburant
+  boite_vitesse   voitures_boite_vitesse
+  portes          Int?
+  places          Int?
+  couleur         voitures_couleur
+  chevaux         Int
+  chevaux_fiscaux Int
+  type_vehicule   voitures_type_vehicule
+  norme_critair   voitures_norme_critair
+  premiere_main   Boolean?                @default(false)
+  etat            voitures_etat?          @default(BON)
+}
+
+enum voitures_carburant {
+  ESSENCE
+  DIESEL
+  ELECTRIQUE
+  HYBRIDE
+  GPL
+  ETHANOL
+}
+
+enum users_role {
+  USER
+  ADMIN
+} 
+
+enum annonces_statut {
+  ACTIVE
+  VENDU
+  SUPPRIMEE
+}
+
+enum voitures_boite_vitesse {
+  MANUELLE
+  AUTOMATIQUE
+  SEMI_AUTOMATIQUE @map("SEMI-AUTOMATIQUE")
+}
+
+enum voitures_type_vehicule {
+  CITADINE
+  BERLINE
+  SUV
+  BREAK
+  COUPE
+  MONOSPACE
+  UTILITAIRE
+  CABRIOLET
+}
+
+enum voitures_norme_critair {
+  ZERO
+  UN
+  DEUX
+  TROIS
+  QUATRE
+  CINQ
+  SIX
+  NON_CLASSE
+}
+
+enum voitures_etat {
+  NEUF
+  TRES_BON
+  BON
+  MOYEN
+  A_REVOIR
+}
+
+enum voitures_couleur {
+  BLANC
+  NOIR
+  GRIS
+  ARGENT
+  ROUGE
+  BLEU
+  VERT
+  JAUNE
+  ORANGE
+  MARRON
+  BEIGE
+  BORDEAUX
+  AUTRE
+}
+
+enum voitures_marque {
+  ALFA_ROMEO
+  ASTON_MARTIN
+  AUDI
+  BENTLEY
+  BMW
+  CADILLAC
+  CHEVROLET
+  CHRYSLER
+  CITROEN
+  DACIA
+  DS
+  FERRARI
+  FIAT
+  FORD
+  HONDA
+  HYUNDAI
+  INFINITI
+  JAGUAR
+  JEEP
+  KIA
+  LAMBORGHINI
+  LAND_ROVER
+  LEXUS
+  MASERATI
+  MAZDA
+  MERCEDES
+  MINI
+  MITSUBISHI
+  NISSAN
+  OPEL
+  PEUGEOT
+  PORSCHE
+  RENAULT
+  SEAT
+  SKODA
+  SMART
+  SUBARU
+  SUZUKI
+  TESLA
+  TOYOTA
+  VOLKSWAGEN
+  VOLVO
+  AUTRE
+}
